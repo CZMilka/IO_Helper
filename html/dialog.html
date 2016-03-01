@@ -1,0 +1,30 @@
+<div class="window-wrapper ui-draggable active" id="ioh-dialog"
+     style="z-index: 1001; display: block; left: 341px; top: 79px;">
+    <div class="window-title">
+        <a title="Close" class="close"
+           onmousedown="$(this).closest('.ui-draggable').addClass('no-drag');"
+           onmouseup="$(this).closest('.ui-draggable').removeClass('no-drag');"
+           href="javascript:void(container.close({saveName: 'ioh-dialog', cancelCallback: true, flow: true, closedWith: 'click'}))"></a>
+
+        <div class="title">
+            <div class="arrow left disabled"></div>
+            <span class="txt-title">IO Helper Dialog</span>
+            <div class="arrow right disabled"></div>
+        </div>
+    </div>
+    <div class="window-content" id="messageboxspecialOffer">
+        <div id="messagebox">
+            <span class="window-decor-left"></span>
+            <span class="window-decor-right"></span>
+
+            <div class="window-tight special-popup-new">
+                <div class="special-popup-content">
+                    <h2 class="special-popup-title">Missions schedule</h2>
+
+                    <hr class="divider">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
