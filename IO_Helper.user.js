@@ -4,8 +4,8 @@
 // @include     http://www*.imperiaonline.org/imperia/game_v6/game/village.php*
 // @require     http://code.jquery.com/jquery-2.1.3.min.js
 // @require     https://raw.githubusercontent.com/bunkat/later/master/later.min.js
-// @resource 	tabs https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/html/tabs.html
-// @resource 	tab-general https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/html/tab-general.html
+// @resource 	tabs https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tabs.html
+// @resource 	tab-general https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tab-general.html
 // @version     1.8
 // @grant       GM_getValue
 // @grant       GM_setValue
