@@ -154,13 +154,16 @@ function showMainIOH(e) {
     e.preventDefault();
     unsafeWindow.container.open(inject.object({
         saveName: "ioh",
-        title: "Hello you little rebel"
+        title: "Hello you little rebel",
+        position: "center, center"
     }));
 
+    var _messagebox = $("#messageboxioh");
+    _messagebox.html('');
     var _tabsHtml = GM_getResourceText("tabs");
-    $("#messageboxioh").append(_tabsHtml);
+    _messagebox.append(_tabsHtml);
     var _generalHtml = GM_getResourceText("tab-general");
-    $("#messageboxioh").append(_generalHtml);
+    _messagebox.append(_generalHtml);
 
 }
 
