@@ -1,12 +1,13 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        IO_Helper
 // @namespace   io_helper
+// @description Imperia Online game helper.
 // @include     http://www*.imperiaonline.org/imperia/game_v6/game/village.php*
 // @require     http://code.jquery.com/jquery-2.1.3.min.js
-// @require     https://raw.githubusercontent.com/bunkat/later/master/later.min.js
-// @resource 	tabs https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/html/tabs.html
-// @resource 	tab-general https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/html/tab-general.html
-// @version     1.8
+// @require     https://cdnjs.cloudflare.com/ajax/libs/later/1.2.0/later.min.js
+// @resource 	tabs https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tabs.html
+// @resource 	tab-general https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tab-general.html
+// @version     1.9
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_xmlhttpRequest
@@ -154,18 +155,38 @@ function showMainIOH(e) {
     e.preventDefault();
     unsafeWindow.container.open(inject.object({
         saveName: "ioh",
-        title: "Hello you little rebel"
+        title: "Hello you little rebel",
+        position: "center;top"
     }));
 
+    var _messageBox = $("#messageboxioh");
+    _messageBox.html('');
     var _tabsHtml = GM_getResourceText("tabs");
-    $("#messageboxioh").append(_tabsHtml);
+    _messageBox.append(_tabsHtml);
     var _generalHtml = GM_getResourceText("tab-general");
-    $("#messageboxioh").append(_generalHtml);
+    _messageBox.append(_generalHtml);
+
+    unsafeWindow.container.position('ioh', inject.object({
+        my: 'center top',
+        at: 'center top+80',
+        of: '.ui-top-center.ui'
+    }));
 
 }
 
 function run() {
+
+    /*
+    * Inject button
+    * at the bottom
+    * right menu
+    * */
     inject.main();
+
+
+    /*
+    * Add event handlers this way, so they can be wrapped in error handling functions
+    * */
     addListener('div.ui-bottom-right.ui div#widget-ioh-main div.ui-bg.ui-buttons a.ui-icon.ioh-main', showMainIOH);
 }
 
@@ -176,8 +197,80 @@ function run() {
 
         log("Done!");
         enWrap(run);
+
     } else {
         log("Loading...");
         setTimeout(initialize, 1000);
     }
 })();
+
+
+/*function doNotCall(e) {
+    var t;
+    t = void 0 == e.saveName ? "generalContainer" : e.saveName;
+    var i;
+    i = void 0 == e.position ? "center;center" : e.position;
+    var n;
+    n = void 0 !== e.title ? unescape(e.title) : void 0;
+    var s;
+    s = "function" != typeof e.cancel ? function () {
+    } : e.cancel;
+    var a = !1;
+    return void 0 !== e.keepContent && (a = e.keepContent), e.modal = !!e.modal, e.backdrop = !!e.backdrop, t == container.modalID || t == container.modalIDwo80 || e.modal ? $("#overlay, #overlayContent, #overlayContentTopmost").show() : e.backdrop && $("#backdrop").fadeIn(), $("#" + t).length > 0 ? (container.opened[t] = "object" != typeof i && "modal" != t && $("#" + t).isOnScreen() && "block" == $("#" + t).css("display") || 0 == container[t].flow ? {
+        position: parseInt($("#" + t).css("left")) + ";" + parseInt($("#" + t).css("top")),
+        cancel: s,
+        load: e.load,
+        keepContent: a
+    } : {
+        position: i,
+        cancel: s,
+        load: e.load,
+        keepContent: a
+    }, container.position(t, container.opened[t].position), container.opened[t].flow = !0, container.opened[t].modal = e.modal, container.opened[t].backdrop = e.backdrop, container.opened[t].saveName = t, $("#" + t).show(), container.makeActive(t), void 0 == n ? $("#" + t + " .title").hide() : ($("#" + t + " .title").show(), $("#" + t + " ." + container.titleClass).html(n))) : (drag = void 0 == e.noDrag ? 0 : 1, container.construct(t, i, n, drag), container.opened[t] = {
+        position: i,
+        cancel: s,
+        load: e.load,
+        keepContent: a
+    }), container.opened[t].flow = !1, container.opened[t].modal = e.modal, container.opened[t].backdrop = e.backdrop, container.opened[t].saveName = t, $(document).trigger("containerOpened", {saveName: t}), e.modal && $("#" + t).addClass("modal"), t
+}
+
+function pos(e, t) {
+    if (void 0 === e) {
+        var i = "." + container.wrapperClass + ".active";
+        e = $(i).attr("id")
+    } else var i = "#" + e;
+    if ("undefined" == typeof t && (t = container.opened[e].position), "object" == typeof t)return void $("#" + e).position(t);
+    var n = windowSize.zoomFactor;
+    switch (-1 != windowSize.exceptions.indexOf(e) && (n = 1), positionPart = t.split(";"), positionBodyWidth = $("body").width(), positionElemWidth = $(i).width() * n, positionBodyHeight = $("body").height(), positionElemHeight = $(i).height() * n, positionPart[0]) {
+        case"left":
+            positionL = 0;
+            break;
+        case"right":
+            positionL = positionBodyWidth - positionElemWidth;
+            break;
+        case"center":
+            positionL = Math.ceil(positionBodyWidth / 2 - positionElemWidth / 2);
+            break;
+        default:
+            positionL = positionPart[0]
+    }
+    switch (positionPart[1]) {
+        case"top":
+            positionT = 0;
+            break;
+        case"bottom":
+            positionT = positionBodyHeight - positionElemHeight;
+            break;
+        case"center":
+            positionT = Math.ceil(positionBodyHeight / 2 - positionElemHeight / 2);
+            break;
+        default:
+            positionT = positionPart[1]
+    }
+    70 > positionT && (positionT = 70);
+    var s;
+    s = isNaN(parseInt(t)) ? parseInt($(document).scrollTop()) : 0, $(i).css({
+        left: parseInt(positionL),
+        top: parseInt(positionT) + s
+    })
+}*/
