@@ -124,7 +124,6 @@ function enWrap(fn) {
 function addListener(selector, fn) {
     if (!fn || typeof fn != "function") return; // no listener
 
-    if(!$(selector).length) return warn("No element with selector [" + selector + "] was found on page!");
     $('body').on('click', selector, function(e) {
 
         // log, do not fail silently
@@ -174,6 +173,17 @@ function showMainIOH(e) {
 
 }
 
+function showTabMenu(e){
+    $("ul#ioh-tabs li").removeClass('active');
+    var target = $(e.currentTarget);
+    var tab = target.attr('id');
+    target.addClass("active");
+
+    var _messageBox = $("#messageboxioh").find(".tabs-content");
+    var _tabHtml = GM_getResourceText(tab);
+    _messageBox.append(_tabHtml);
+}
+
 function run() {
 
     /*
@@ -183,10 +193,10 @@ function run() {
     * */
     inject.main();
 
-
     /*
     * Add event handlers this way, so they can be wrapped in error handling functions
     * */
+    addListener('div#messageboxioh.window-content ul.window-tabs li.ui-ib.ioh', showTabMenu);
     addListener('div.ui-bottom-right.ui div#widget-ioh-main div.ui-bg.ui-buttons a.ui-icon.ioh-main', showMainIOH);
 }
 
