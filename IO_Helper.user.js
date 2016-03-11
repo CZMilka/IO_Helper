@@ -5,8 +5,8 @@
 // @include     http://www*.imperiaonline.org/imperia/game_v6/game/village.php*
 // @require     http://code.jquery.com/jquery-2.1.3.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/later/1.2.0/later.min.js
-// @resource 	tabs https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tabs.html
-// @resource 	tab-general https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/tab-general.html
+// @resource 	ioh-html https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/ioh-main.html
+// @resource 	ioh-style https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/ioh-style.css
 // @version     1.9
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -69,6 +69,11 @@ var inject = {
 
         inject.style(_style);
         $("div#widget-play-mobile").after(_html);
+    },
+
+    allStyles: function() {
+        var _styles = GM_getResourceText('ioh-style');
+        inject.style(_styles);
     },
 
     style: function (css) {
@@ -152,6 +157,7 @@ function addListener(selector, fn) {
 // --> Handlers
 function showMainIOH(e) {
     e.preventDefault();
+
     unsafeWindow.container.open(inject.object({
         saveName: "ioh",
         title: "Hello you little rebel",
@@ -159,11 +165,8 @@ function showMainIOH(e) {
     }));
 
     var _messageBox = $("#messageboxioh");
-    _messageBox.html('');
-    var _tabsHtml = GM_getResourceText("tabs");
-    _messageBox.append(_tabsHtml);
-    var _generalHtml = GM_getResourceText("tab-general");
-    _messageBox.append(_generalHtml);
+    var _iohMain = GM_getResourceText("ioh-html");
+    _messageBox.html(_iohMain);
 
     unsafeWindow.container.position('ioh', inject.object({
         my: 'center top',
@@ -179,9 +182,10 @@ function showTabMenu(e){
     var tab = target.attr('id');
     target.addClass("active");
 
-    var _messageBox = $("#messageboxioh").find(".tabs-content");
-    var _tabHtml = GM_getResourceText(tab);
-    _messageBox.append(_tabHtml);
+    $("#ioh-content").find("div.content").hide();
+    var tabContent = $('#' + tab + '-content.content');
+    if(!tabContent.length) warn('No content for the target tab was found!');
+    tabContent.show();
 }
 
 function run() {
@@ -192,6 +196,7 @@ function run() {
     * right menu
     * */
     inject.main();
+    inject.allStyles();
 
     /*
     * Add event handlers this way, so they can be wrapped in error handling functions
