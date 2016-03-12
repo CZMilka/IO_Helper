@@ -5,6 +5,8 @@
 // @include     http://www*.imperiaonline.org/imperia/game_v6/game/village.php*
 // @require     http://code.jquery.com/jquery-2.1.3.min.js
 // @require     https://cdnjs.cloudflare.com/ajax/libs/later/1.2.0/later.min.js
+// @require     https://greasyfork.org/scripts/5392-waitforkeyelements/code/WaitForKeyElements.js
+// @require     https://greasyfork.org/scripts/5279-greasemonkey-supervalues/code/GreaseMonkey_SuperValues.js
 // @resource 	ioh-html https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/ioh-main.html
 // @resource 	ioh-style https://raw.githubusercontent.com/panayot-zhi/IO_Helper/master/ioh-style.css
 // @version     1.9
@@ -20,12 +22,32 @@ var $ = this.$ = this.jQuery = jQuery.noConflict(true);
 var unsafeWindow = unsafeWindow || console.error("Imperia Online Helper: This script requires access to the unsafeWindow.");
 var GM_getValue = GM_getValue || console.error("Imperia Online Helper: This script requires access to the GM_getValue function.");
 var GM_setValue = GM_setValue || console.error("Imperia Online Helper: This script requires access to the GM_setValue function.");
+var GM_SuperValue = GM_SuperValue || console.error("Imperia Online Helper: This script requires access to the GM_SuperValue extension function.");
 var GM_xmlhttpRequest = GM_xmlhttpRequest || console.error("Imperia Online Helper: This script requires access to the GM_xmlhttpRequest.");
 var GM_getResourceText = GM_getResourceText || console.error("Imperia Online Helper: This script requires access to the GM_getResourceText function.", "Greasemonkey");
 var GM_registerMenuCommand = GM_registerMenuCommand || console.error("Imperia Online Helper: This script requires access to the GM_registerMenuCommand function.", "Greasemonkey");
 
 // TODO: Extract variables from localStorage here
 var debugMode = false;
+
+var DB = {
+    get vassals() {
+        var vassals = GM_SuperValue.get("vassals", []);
+        $('#widget-navigation #fast-provinces .ui-location.ui-vassals').each(function (i, item) {
+            var regExp = /\{provinceId:\d+}/;
+            var extractedStrings = regExp.exec(item.href);
+            if (extractedStrings.length > 1) throw "More than one province ID's found with regular expression!";
+            var provinceId = eval(extractedStrings[0]);
+            if (vassals.indexOf(provinceId) < 0) {
+                vassals.push(provinceId);
+                log("A new vassal was recorded.")
+            }
+        });
+
+        GM_SuperValue.set("vassals", vassals);
+        return vassals;
+    }
+};
 
 var inject = {
 
@@ -177,6 +199,7 @@ function showMainIOH(e) {
 }
 
 function showTabMenu(e){
+    e.preventDefault();
     $("ul#ioh-tabs li").removeClass('active');
     var target = $(e.currentTarget);
     var tab = target.attr('id');
@@ -198,11 +221,25 @@ function run() {
     inject.main();
     inject.allStyles();
 
+    // will fire every 5 minutes
+    var textSchedule = later.parse.text('every 1 min');
+
+     // execute logTime for each successive occurrence of the text schedule
+     var timer = later.setInterval(collectFromVassals, textSchedule);
+
+     // function to execute
+     function collectFromVassals() {
+         //unsafeWindow.xajax_doCollectVassalGold(false, {provinceId: 8751, allVassal: true})
+     }
+
     /*
     * Add event handlers this way, so they can be wrapped in error handling functions
     * */
     addListener('div#messageboxioh.window-content ul.window-tabs li.ui-ib.ioh', showTabMenu);
     addListener('div.ui-bottom-right.ui div#widget-ioh-main div.ui-bg.ui-buttons a.ui-icon.ioh-main', showMainIOH);
+
+
+
 }
 
 (function initialize() {
@@ -220,7 +257,7 @@ function run() {
 })();
 
 
-/*function doNotCall(e) {
+function container_open(e) {
     var t;
     t = void 0 == e.saveName ? "generalContainer" : e.saveName;
     var i;
@@ -249,7 +286,7 @@ function run() {
     }), container.opened[t].flow = !1, container.opened[t].modal = e.modal, container.opened[t].backdrop = e.backdrop, container.opened[t].saveName = t, $(document).trigger("containerOpened", {saveName: t}), e.modal && $("#" + t).addClass("modal"), t
 }
 
-function pos(e, t) {
+function container_position(e, t) {
     if (void 0 === e) {
         var i = "." + container.wrapperClass + ".active";
         e = $(i).attr("id")
@@ -288,4 +325,27 @@ function pos(e, t) {
         left: parseInt(positionL),
         top: parseInt(positionT) + s
     })
-}*/
+}
+
+function xajax_request() {
+    var e = arguments.length;
+    if (0 == e)return !1;
+    var t = {};
+    e > 1 && (t = arguments[1]), t.functionName = arguments[0];
+    var i = xajax;
+    for (i.initializeRequest(t), i.processParameters(t); 0 < t.requestRetry;)try {
+        return --t.requestRetry, i.prepareRequest(t), i.submitRequest(t)
+    } catch (n) {
+        if (xajax.callback.execute([xajax.callback.global, t.callback], "onFailure", t), 0 == t.requestRetry)throw n
+    }
+}
+
+function xajax_submitRequest(e) {
+    e.status.onRequest(), $(window).trigger("xajax.request", e.parameters);
+    var t = xajax.callback, i = t.global, n = e.callback;
+    return t.execute([i, n], "onResponseDelay", e), t.execute([i, n], "onExpiration", e), t.execute([
+        i,
+        n
+    ], "onRequest", e), e.open(), e.applyRequestHeaders(), e.cursor.onWaiting(), e.status.onWaiting(), xajax._internalSend(e), e.finishRequest()
+}
+
